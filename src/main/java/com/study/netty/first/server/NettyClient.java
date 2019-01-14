@@ -1,6 +1,6 @@
-package com.study.netty.server;
+package com.study.netty.first.server;
 
-import com.study.netty.handler.FirstClientHandler;
+import com.study.netty.first.handler.FirstClientHandler;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;

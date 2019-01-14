@@ -1,4 +1,4 @@
-package com.study.netty.server;
+package com.study.netty.first.server;
 
 import java.io.IOException;
 import java.io.InputStream;

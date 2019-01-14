@@ -1,4 +1,4 @@
-package com.study.netty;
+package com.study.netty.login;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
