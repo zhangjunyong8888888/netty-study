@@ -1,13 +1,9 @@
 package com.study.netty.login.server;
 
-import com.study.netty.login.handler.ServerHandler;
+import com.study.netty.login.initializer.ServerChannelInitializer;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.channel.socket.nio.NioSocketChannel;
 
 public class NettyServer {
     public static void main(String[] args) {
@@ -18,17 +14,7 @@ public class NettyServer {
         serverBootstrap
             .group(boss, worker)
             .channel(NioServerSocketChannel.class)
-            .childHandler(new ChannelInitializer<NioSocketChannel>() {
-                protected void initChannel(NioSocketChannel ch) {
-                    ch.pipeline().addLast(new ServerHandler());
-                    ch.pipeline().addLast(new SimpleChannelInboundHandler<String>() {
-                        @Override
-                        protected void channelRead0(ChannelHandlerContext ctx, String msg) {
-                            System.out.println(msg);
-                        }
-                    });
-                }
-            });
+                .childHandler(new ServerChannelInitializer());
         bind(serverBootstrap,8089);
     }
     private static void bind(final ServerBootstrap serverBootstrap, final int port) {

@@ -1,14 +1,12 @@
 package com.study.netty.login.server;
 
-import com.study.netty.login.handler.ClientHandler;
-import com.study.netty.login.protocol.PacketCodeC;
+import com.study.netty.login.initializer.CilentChannelInitializer;
+import com.study.netty.login.protocol.request.LoginRequestPacket;
 import com.study.netty.login.protocol.request.MessageRequestPacket;
-import com.study.netty.login.utils.LoginUtil;
+import com.study.netty.login.session.SessionUtil;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
@@ -22,16 +20,18 @@ public class NettyClient {
         NioEventLoopGroup group = new NioEventLoopGroup();
         bootstrap.group(group)
                 .channel(NioSocketChannel.class)
-                .handler(new ChannelInitializer<Channel>() {
-                    @Override
-                    protected void initChannel(Channel ch) {
-                        ch.pipeline().addLast(new ClientHandler());
-                    }
-                });
+                .handler(new CilentChannelInitializer());
         //连接NettyServer
         connect(bootstrap, "127.0.0.1", 8089);
     }
 
+    /**
+     * 链接服务器
+     *
+     * @param bootstrap
+     * @param host
+     * @param port
+     */
     private static void connect(Bootstrap bootstrap, String host, int port) {
         bootstrap.connect(host, port).addListener(future -> {
             if (future.isSuccess()) {
@@ -46,19 +46,35 @@ public class NettyClient {
     }
 
     private static void startConsoleThread(Channel channel) {
+        Scanner sc = new Scanner(System.in);
+        LoginRequestPacket loginRequestPacket = new LoginRequestPacket();
         new Thread(() -> {
             while (!Thread.interrupted()) {
-                if (LoginUtil.hasLogin(channel)) {
-                    System.out.println("输入消息发送至服务端: ");
-                    Scanner sc = new Scanner(System.in);
-                    String line = sc.nextLine();
-                    MessageRequestPacket messageRequestPacket = new MessageRequestPacket();
-                    messageRequestPacket.setMessage(line);
-                    ByteBuf byteBuf = PacketCodeC.INSTANCE.encode(channel.alloc(), messageRequestPacket);
-                    channel.writeAndFlush(byteBuf);
+                if (SessionUtil.hasLogin(channel)) {
+                    System.out.println("请输入您好有的ID: ");
+                    String toUseId = sc.nextLine();
+                    System.out.println("请输入您要发送的消息: ");
+                    String message = sc.nextLine();
+                    channel.writeAndFlush(new MessageRequestPacket(toUseId, message));
+                } else {
+                    System.out.println("请输入用户名: ");
+                    String userName = sc.nextLine();
+                    System.out.println("请输入密码: ");
+                    String password = sc.nextLine();
+                    loginRequestPacket.setUsername(userName);
+                    loginRequestPacket.setPassword(password);
+                    channel.writeAndFlush(loginRequestPacket);
+                    waitForLoginResponse();
                 }
             }
 
         }).start();
+    }
+
+    private static void waitForLoginResponse() {
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException ignored) {
+        }
     }
 }

@@ -11,14 +11,13 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 public class ClientHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
         System.out.println(LocalDateTime.now() + ": 客户端开始登录");
         LoginRequestPacket loginRequestPacket = new LoginRequestPacket();
-        loginRequestPacket.setUserId(UUID.randomUUID().toString());
+        //loginRequestPacket.setUserId(UUID.randomUUID().toString());
         loginRequestPacket.setUsername("user_name_8888888");
         loginRequestPacket.setPassword("user_pwd_123456");
         ByteBuf byteBuf = PacketCodeC.INSTANCE.encode(ctx.alloc(), loginRequestPacket);
