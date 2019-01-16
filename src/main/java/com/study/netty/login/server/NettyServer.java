@@ -2,6 +2,7 @@ package com.study.netty.login.server;
 
 import com.study.netty.login.initializer.ServerChannelInitializer;
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 
@@ -14,6 +15,9 @@ public class NettyServer {
         serverBootstrap
             .group(boss, worker)
             .channel(NioServerSocketChannel.class)
+                .option(ChannelOption.SO_BACKLOG, 1024)
+                .childOption(ChannelOption.SO_KEEPALIVE, true)
+                .childOption(ChannelOption.TCP_NODELAY, true)
                 .childHandler(new ServerChannelInitializer());
         bind(serverBootstrap,8089);
     }

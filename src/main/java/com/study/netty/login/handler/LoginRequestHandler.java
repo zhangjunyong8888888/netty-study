@@ -16,6 +16,7 @@ public class LoginRequestHandler extends SimpleChannelInboundHandler<LoginReques
         Channel channel = channelHandlerContext.channel();
         String userId = channel.id().asShortText();
         response.setUserId(userId);
+        response.setUserName(loginRequestPacket.getUsername());
         SessionUtil.bindSession(new Session(userId, loginRequestPacket.getUsername()), channel);
         channel.writeAndFlush(response);
     }
